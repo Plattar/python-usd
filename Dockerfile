@@ -7,7 +7,7 @@
 FROM python:2.7.15
 
 # our binary versions where applicable
-ENV USD_VERSION 19.01
+ENV USD_VERSION 19.03
 
 WORKDIR /usr/src/app
 
