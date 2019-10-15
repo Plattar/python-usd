@@ -4,10 +4,10 @@
 # PLATTAR uses this base for other open source projects such as the
 # xrutils toolchain.
 # For more info on USD tools, visit https://github.com/PixarAnimationStudios/USD
-FROM python:2.7.15
+FROM python:2.7.16-buster
 
 # our binary versions where applicable
-ENV USD_VERSION 19.07
+ENV USD_VERSION 18.11
 
 WORKDIR /usr/src/app
 
