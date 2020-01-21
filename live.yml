@@ -1,0 +1,11 @@
+version: "3.7"
+services:
+  plattar-usd:
+    build: .
+    container_name: plattar-usd
+    image: plattar/python-usd:latest
+    command: 
+      - /bin/sh
+      - -c
+      - |
+        tail -f /dev/null
