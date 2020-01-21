@@ -7,7 +7,7 @@
 FROM python:2.7.16-buster
 
 # our binary versions where applicable
-ENV USD_VERSION 19.11
+ENV USD_VERSION 20.02-rc1
 
 WORKDIR /usr/src/app
 
