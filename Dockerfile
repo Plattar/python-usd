@@ -11,7 +11,8 @@ ENV USD_VERSION 20.02-rc1
 
 # Update the environment path
 ENV PATH "$PATH:/usr/src/app/xrutils/USDPython/bin"
-ENV USD_INSTALL_PATH /usr/src/app/xrutils/USDPython/bin
+ENV USD_BUILD_PATH /usr/src/app/xrutils/USDPython
+ENV USD_INSTALL_PATH ${USD_BUILD_PATH}/bin
 
 WORKDIR /usr/src/app
 
