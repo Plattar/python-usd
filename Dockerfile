@@ -25,7 +25,8 @@ RUN apt-get update && apt-get install -y \
 	make \
 	cmake \
 	doxygen \
-	graphviz
+	graphviz \
+	nasm
 
 # Clone, setup and compile the Pixar USD Converter. This is required
 # for converting GLTF2->USDZ
@@ -33,5 +34,5 @@ RUN apt-get update && apt-get install -y \
 RUN mkdir xrutils && \
 	git clone https://github.com/PixarAnimationStudios/USD && \
 	cd USD && git checkout tags/v${USD_VERSION} && cd ../ && \
-	python USD/build_scripts/build_usd.py --build-args TBB,extra_inc=big_iron.inc --python --no-imaging --docs --no-usdview --build-monolithic xrutils/USDPython && \
+	python USD/build_scripts/build_usd.py --build-args TBB,extra_inc=big_iron.inc --python --no-imaging --docs --no-usdview xrutils/USDPython && \
 	rm -rf USD
