@@ -29,3 +29,7 @@ RUN mkdir xrutils && \
 	cd USD && git checkout tags/v${USD_VERSION} && cd ../ && \
 	python USD/build_scripts/build_usd.py --build-args TBB,extra_inc=big_iron.inc --python --no-imaging --docs --no-usdview --build-monolithic xrutils/USDPython && \
 	rm -rf USD
+
+# Update the environment path
+ENV PATH "$PATH:/usr/src/app/xrutils/USDPython/bin"
+ENV USD_INSTALL_PATH /usr/src/app/xrutils/USDPython/bin
