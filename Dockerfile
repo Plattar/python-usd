@@ -52,4 +52,5 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	libxinerama-dev \
 	libxi-dev \
 	zlib1g-dev && \
-	apt-get autoclean
+	apt autoremove -y && \
+	apt-get autoclean -y
