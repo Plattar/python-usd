@@ -43,7 +43,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	# remove packages we no longer need/require
 	# this keeps the container as small as possible
 	# if others need them, they can install when extending
-	dpkg –-remove git \
+	apt-get purge -y git \
 	build-essential \
 	cmake \
 	nasm \
