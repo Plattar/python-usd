@@ -6,6 +6,8 @@
 # For more info on USD tools, visit https://github.com/PixarAnimationStudios/USD
 FROM python:2.7.16-slim-buster
 
+LABEL MAINTAINER PLATTAR(www.plattar.com)
+
 # our binary versions where applicable
 ENV USD_VERSION="19.11"
 
