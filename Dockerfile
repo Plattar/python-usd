@@ -40,6 +40,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	cd usdsrc && git checkout tags/v${USD_VERSION} && cd ../ && \
 	python usdsrc/build_scripts/build_usd.py -v --no-usdview ${USD_BUILD_PATH} && \
 	rm -rf usdsrc && \
+	# remove build files we no longer need to save space
+	rm -rf ${USD_BUILD_PATH}/build && \
+	rm -rf ${USD_BUILD_PATH}/cmake && \
+	rm -rf ${USD_BUILD_PATH}/pxrConfig.cmake && \
+	rm -rf ${USD_BUILD_PATH}/share && \
+	rm -rf ${USD_BUILD_PATH}/src && \
 	# remove packages we no longer need/require
 	# this keeps the container as small as possible
 	# if others need them, they can install when extending
