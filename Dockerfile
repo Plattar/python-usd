@@ -7,7 +7,7 @@
 FROM python:2.7.16-slim-buster
 
 # our binary versions where applicable
-ENV USD_VERSION="20.02-rc2"
+ENV USD_VERSION="19.11"
 
 # Update the environment path
 ENV USD_BUILD_PATH="/usr/src/app/xrutils/usd"
