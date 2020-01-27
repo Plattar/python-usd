@@ -9,7 +9,7 @@ FROM python:2.7.16-slim-buster
 LABEL MAINTAINER PLATTAR(www.plattar.com)
 
 # our binary versions where applicable
-ENV USD_VERSION="19.11"
+ENV USD_VERSION="20.02"
 
 # Update the environment path
 ENV USD_BUILD_PATH="/usr/src/app/xrutils/usd"
