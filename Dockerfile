@@ -48,6 +48,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	rm -rf ${USD_BUILD_PATH}/pxrConfig.cmake && \
 	rm -rf ${USD_BUILD_PATH}/share && \
 	rm -rf ${USD_BUILD_PATH}/src && \
+	rm -rf ${USD_BUILD_PATH}/include && \
 	# remove packages we no longer need/require
 	# this keeps the container as small as possible
 	# if others need them, they can install when extending
