@@ -4,7 +4,7 @@
 # PLATTAR uses this base for other open source projects such as the
 # xrutils toolchain.
 # For more info on USD tools, visit https://github.com/PixarAnimationStudios/USD
-FROM python:2.7.16-slim-buster
+FROM lambci/lambda:build-python3.8
 
 LABEL MAINTAINER PLATTAR(www.plattar.com)
 
@@ -22,7 +22,7 @@ ENV PYTHONPATH="${PYTHONPATH}:${USD_LIB_PATH}/python"
 WORKDIR /usr/src/app
 
 # Required for compiling the USD source
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN yum update -y && yum install -y \
 	git \
 	build-essential \
 	cmake \
@@ -32,12 +32,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	libxcursor-dev \
 	libxinerama-dev \
 	libxi-dev \
-	zlib1g-dev && \
-	rm -rf /var/lib/apt/lists/* && \
-	# Clone, setup and compile the Pixar USD Converter. This is required
-	# for converting GLTF2->USDZ
-	# More info @ https://github.com/PixarAnimationStudios/USD
-	mkdir xrutils && \
+	zlib1g-dev
+
+RUN rm -rf /var/lib/apt/lists/*
+# Clone, setup and compile the Pixar USD Converter. This is required
+# for converting GLTF2->USDZ
+# More info @ https://github.com/PixarAnimationStudios/USD
+RUN mkdir xrutils && \
 	git clone https://github.com/PixarAnimationStudios/USD usdsrc && \
 	cd usdsrc && git checkout tags/v${USD_VERSION} && cd ../ && \
 	python usdsrc/build_scripts/build_usd.py -v --no-usdview ${USD_BUILD_PATH} && \
@@ -47,11 +48,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	rm -rf ${USD_BUILD_PATH}/cmake && \
 	rm -rf ${USD_BUILD_PATH}/pxrConfig.cmake && \
 	rm -rf ${USD_BUILD_PATH}/share && \
-	rm -rf ${USD_BUILD_PATH}/src && \
-	# remove packages we no longer need/require
-	# this keeps the container as small as possible
-	# if others need them, they can install when extending
-	apt-get purge -y git \
+	rm -rf ${USD_BUILD_PATH}/src
+# remove packages we no longer need/require
+# this keeps the container as small as possible
+# if others need them, they can install when extending
+RUN yum purge -y git \
 	build-essential \
 	cmake \
 	nasm \
@@ -61,4 +62,4 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	libxi-dev \
 	zlib1g-dev && \
 	apt autoremove -y && \
-	apt-get autoclean -y
+	yum autoclean -y
