@@ -35,6 +35,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	libxi-dev \
 	zlib1g-dev && \
 	rm -rf /var/lib/apt/lists/* && \
+	# this is needed for generating usdGenSchema
+	pip3 install -U Jinja2 && \
 	# Clone, setup and compile the Pixar USD Converter. This is required
 	# for converting GLTF2->USDZ
 	# More info @ https://github.com/PixarAnimationStudios/USD
