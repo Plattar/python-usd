@@ -13,6 +13,7 @@ ENV USD_VERSION="21.05"
 
 # Update the environment path
 ENV USD_BUILD_PATH="/usr/src/app/xrutils/usd"
+ENV USD_PLUGIN_PATH="/usr/src/app/xrutils/usd/plugin/usd"
 ENV USD_BIN_PATH="${USD_BUILD_PATH}/bin"
 ENV USD_LIB_PATH="${USD_BUILD_PATH}/lib"
 ENV PATH="${PATH}:${USD_BIN_PATH}"
