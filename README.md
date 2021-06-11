@@ -2,3 +2,5 @@
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg?style=flat)](LICENSE)
 
 _Python USD_ is a docker container that contains pre-built versions of [Pixar USD](https://github.com/PixarAnimationStudios/USD) toolchain. Due to the amount of time it takes to build these tools, this container can serve as a useful base for other applications. Check out the Plattar [dockerhub](https://hub.docker.com/r/plattar/python-usd) repository for the latest pre-built images.
+
+Looking for the _Python USD AR_ images with Apple USDZ Schema Definitions? Check out the [python-usd-ar](https://github.com/Plattar/python-usd-ar) repository.
