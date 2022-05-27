@@ -28,6 +28,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	build-essential \
 	cmake \
 	nasm \
+	libboost-all-dev \
+	libtbb-dev \
 	libglew-dev \
 	libxrandr-dev \
 	libxcursor-dev \
@@ -58,6 +60,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	build-essential \
 	cmake \
 	nasm \
+	libboost-all-dev \
+	libtbb-dev \
 	libglew-dev \
 	libxrandr-dev \
 	libxinerama-dev \
