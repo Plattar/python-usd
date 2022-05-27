@@ -3,6 +3,7 @@ services:
   plattar-usd:
     build: .
     container_name: plattar-usd
+    platform: linux/amd64
     image: plattar/python-usd:latest
     command: 
       - /bin/sh
