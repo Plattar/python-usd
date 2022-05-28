@@ -9,7 +9,7 @@ FROM python:3-slim-buster
 LABEL MAINTAINER PLATTAR(www.plattar.com)
 
 # our binary versions where applicable
-ENV USD_VERSION="21.11"
+ENV USD_VERSION="22.05a"
 
 # Update the environment path
 ENV USD_BUILD_PATH="/usr/src/app/xrutils/usd"
@@ -28,12 +28,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	build-essential \
 	cmake \
 	nasm \
-	libglew-dev \
 	libxrandr-dev \
 	libxcursor-dev \
 	libxinerama-dev \
-	libxi-dev \
-	zlib1g-dev && \
+	libxi-dev && \
 	rm -rf /var/lib/apt/lists/* && \
 	# this is needed for generating usdGenSchema
 	pip3 install -U Jinja2 && \
@@ -41,9 +39,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	# for converting GLTF2->USDZ
 	# More info @ https://github.com/PixarAnimationStudios/USD
 	mkdir xrutils && \
-	git clone https://github.com/PixarAnimationStudios/USD usdsrc && \
-	cd usdsrc && git checkout tags/v${USD_VERSION} && cd ../ && \
-	python usdsrc/build_scripts/build_usd.py -v --no-usdview ${USD_BUILD_PATH} && \
+	git clone --branch "v${USD_VERSION}" --depth 1 https://github.com/PixarAnimationStudios/USD.git usdsrc && \
+	python usdsrc/build_scripts/build_usd.py --verbose --prefer-safety-over-speed --no-examples --no-tutorials --no-python --no-imaging --no-usdview --draco ${USD_BUILD_PATH} && \
 	rm -rf usdsrc && \
 	# remove build files we no longer need to save space
 	rm -rf ${USD_BUILD_PATH}/build && \
@@ -58,10 +55,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	build-essential \
 	cmake \
 	nasm \
-	libglew-dev \
 	libxrandr-dev \
 	libxinerama-dev \
-	libxi-dev \
-	zlib1g-dev && \
+	libxi-dev && \
 	apt autoremove -y && \
 	apt-get autoclean -y
