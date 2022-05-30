@@ -4,7 +4,7 @@
 # PLATTAR uses this base for other open source projects such as the
 # xrutils toolchain.
 # For more info on USD tools, visit https://github.com/PixarAnimationStudios/USD
-FROM python:3-slim-buster
+FROM python:3.7-slim-buster
 
 LABEL MAINTAINER PLATTAR(www.plattar.com)
 
@@ -34,13 +34,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	libxi-dev && \
 	rm -rf /var/lib/apt/lists/* && \
 	# this is needed for generating usdGenSchema
-	pip3 install -U Jinja2 && \
+	pip3 install -U Jinja2 argparse && \
 	# Clone, setup and compile the Pixar USD Converter. This is required
 	# for converting GLTF2->USDZ
 	# More info @ https://github.com/PixarAnimationStudios/USD
 	mkdir xrutils && \
 	git clone --branch "v${USD_VERSION}" --depth 1 https://github.com/PixarAnimationStudios/USD.git usdsrc && \
-	python usdsrc/build_scripts/build_usd.py --verbose --prefer-safety-over-speed --no-examples --no-tutorials --no-python --no-imaging --no-usdview --draco ${USD_BUILD_PATH} && \
+	python usdsrc/build_scripts/build_usd.py --verbose --prefer-safety-over-speed --no-examples --no-tutorials --no-imaging --no-usdview --draco ${USD_BUILD_PATH} && \
 	rm -rf usdsrc && \
 	# remove build files we no longer need to save space
 	rm -rf ${USD_BUILD_PATH}/build && \
