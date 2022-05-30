@@ -4,7 +4,7 @@
 # PLATTAR uses this base for other open source projects such as the
 # xrutils toolchain.
 # For more info on USD tools, visit https://github.com/PixarAnimationStudios/USD
-FROM python:3.7-slim-buster
+FROM python:3.7-slim-bullseye
 
 LABEL MAINTAINER PLATTAR(www.plattar.com)
 
