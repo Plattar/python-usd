@@ -9,7 +9,7 @@ FROM python:3.7-slim-bullseye
 LABEL MAINTAINER PLATTAR(www.plattar.com)
 
 # our binary versions where applicable
-ENV USD_VERSION="22.05a"
+ENV USD_VERSION="21.02"
 
 # Update the environment path
 ENV USD_BUILD_PATH="/usr/src/app/xrutils/usd"
