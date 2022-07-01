@@ -2,6 +2,7 @@ name: Docker Publish
 on:
   push:
     tags:
+      - '*'
 jobs:
   buildx:
     runs-on: ubuntu-latest
