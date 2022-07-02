@@ -21,8 +21,10 @@ jobs:
         run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
       - name: print version number
         run: echo ${{ env.RELEASE_VERSION }}
-      - name: build & save
-        run: sudo docker buildx build -o type=tar,dest=build-amd64.tar --platform linux/amd64 -t plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64 -f Demofile .
+      - name: build
+        run: |
+          docker buildx build --platform linux/amd64 -t plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64 -f Demofile .
+          docker image save plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64 -o build-amd64.tar
       - name: cache
         uses: actions/upload-artifact@v3
         with:
@@ -47,7 +49,9 @@ jobs:
       - name: print version number
         run: echo ${{ env.RELEASE_VERSION }}
       - name: build & save
-        run: sudo docker buildx build -o type=tar,dest=build-arm64.tar --platform linux/arm64 -t plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64 -f Demofile .
+        run: |
+          docker buildx build --platform linux/arm64 -t plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64 -f Demofile .
+          docker image save plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64 -o build-arm64.tar
       - name: cache
         uses: actions/upload-artifact@v3
         with:
@@ -81,11 +85,11 @@ jobs:
           name: docker-build
       - name: import & upload linux/amd64
         run: |
-          docker import --platform linux/amd64 build-amd64.tar plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64
+          docker image load build-amd64.tar
           docker push plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64
       - name: import & upload linux/arm64
         run: |
-          docker import --platform linux/arm64 build-arm64.tar plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64
+          docker image load build-arm64.tar
           docker push plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64
       - name: create manifest
         run: docker manifest create plattar/python-usd:version-${{ env.RELEASE_VERSION }} plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64 plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64
