@@ -30,7 +30,7 @@ jobs:
         run: |
           docker buildx build --platform linux/amd64 -t plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64 .
           mkdir -p save/artifact
-          docker save plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64 > save/artifact/build-${{ env.RELEASE_VERSION }}-amd64.tar
+          docker save -o save/artifact/build-${{ env.RELEASE_VERSION }}-amd64.tar plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64
       - name: cache
         uses: actions/upload-artifact@v2
         with:
@@ -63,7 +63,7 @@ jobs:
         run: |
           docker buildx build --platform linux/arm64 -t plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64 .
           mkdir -p save/artifact
-          docker save plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64 > save/artifact/build-${{ env.RELEASE_VERSION }}-arm64.tar
+          docker save -o save/artifact/build-${{ env.RELEASE_VERSION }}-arm64.tar plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64
       - name: cache
         uses: actions/upload-artifact@v2
         with:
@@ -98,13 +98,11 @@ jobs:
           path: save/artifact
       - name: upload linux/amd64
         run: |
-          cd save/artifact
-          docker load < build-${{ env.RELEASE_VERSION }}-amd64.tar
+          docker load -i save/artifact/build-${{ env.RELEASE_VERSION }}-amd64.tar
           docker push plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64
       - name: upload linux/arm64
         run: |
-          cd save/artifact
-          docker load < build-${{ env.RELEASE_VERSION }}-arm64.tar
+          docker load -i save/artifact/build-${{ env.RELEASE_VERSION }}-arm64.tar
           docker push plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64
       - name: create manifest
         run: docker manifest create plattar/python-usd:version-${{ env.RELEASE_VERSION }} plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64 plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64
