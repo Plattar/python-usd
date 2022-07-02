@@ -6,7 +6,7 @@ on:
 jobs:
   docker-build:
     runs-on: ubuntu-latest
-    timeout-minutes: 1440
+    timeout-minutes: 720
     steps:
       - name: checkout code
         uses: actions/checkout@v2
@@ -26,9 +26,15 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_UPLOAD_USERNAME }}
           password: ${{ secrets.DOCKER_UPLOAD_TOKEN }}
-      - name: build & upload
-        run: |
-          docker buildx build \
-          --push \
-          --tag plattar/python-usd:version-${{ env.RELEASE_VERSION }} \
-          --platform linux/amd64,linux/arm64 . 
+      - name: build linux/amd64
+        run: docker buildx build --platform linux/amd64 -t plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64 .
+      - name: build linux/arm64
+        run: docker buildx build --platform linux/arm64 -t plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64 .
+      - name: upload linux/amd64
+        run: docker push plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64
+      - name: upload linux/arm64
+        run: docker push plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64
+      - name: create manifest
+        run: docker manifest create plattar/python-usd:version-${{ env.RELEASE_VERSION }} plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64 plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64
+      - name: upload manifest
+        run: docker manifest push  plattar/python-usd:version-${{ env.RELEASE_VERSION }}
