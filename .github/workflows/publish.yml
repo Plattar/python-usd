@@ -79,13 +79,13 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: docker-build
-      - name: upload linux/amd64
+      - name: import & upload linux/amd64
         run: |
-          docker import --platform linux/amd64 build-amd64.tar - plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64
+          docker import --platform linux/amd64 build-amd64.tar plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64
           docker push plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64
-      - name: upload linux/arm64
+      - name: import & upload linux/arm64
         run: |
-          docker import --platform linux/arm64 build-arm64.tar - plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64
+          docker import --platform linux/arm64 build-arm64.tar plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64
           docker push plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64
       - name: create manifest
         run: docker manifest create plattar/python-usd:version-${{ env.RELEASE_VERSION }} plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64 plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64
