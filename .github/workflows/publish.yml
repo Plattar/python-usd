@@ -7,6 +7,7 @@ jobs:
   build-amd64:
     runs-on: ubuntu-latest
     timeout-minutes: 360
+    permissions: read-all|write-all
     steps:
       - name: checkout code
         uses: actions/checkout@v2
@@ -22,9 +23,7 @@ jobs:
       - name: print version number
         run: echo ${{ env.RELEASE_VERSION }}
       - name: build & save
-        run: |
-          sudo docker buildx build -o build-amd64.tar --platform linux/amd64 -t plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64 -f Demofile .
-          chmod 777 build-amd64.tar
+        run: sudo docker buildx build -o build-amd64.tar --platform linux/amd64 -t plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64 -f Demofile .
       - name: cache
         uses: actions/upload-artifact@v3
         with:
@@ -34,6 +33,7 @@ jobs:
   build-arm64:
     runs-on: ubuntu-latest
     timeout-minutes: 360
+    permissions: read-all|write-all
     steps:
       - name: checkout code
         uses: actions/checkout@v2
@@ -49,9 +49,7 @@ jobs:
       - name: print version number
         run: echo ${{ env.RELEASE_VERSION }}
       - name: build & save
-        run: |
-          sudo docker buildx build -o build-arm64.tar --platform linux/arm64 -t plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64 -f Demofile .
-          chmod 777 build-arm64.tar
+        run: sudo docker buildx build -o build-arm64.tar --platform linux/arm64 -t plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64 -f Demofile .
       - name: cache
         uses: actions/upload-artifact@v3
         with:
@@ -62,6 +60,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 360
     needs: [build-amd64, build-arm64]
+    permissions: read-all|write-all
     steps:
       - name: checkout code
         uses: actions/checkout@v2
