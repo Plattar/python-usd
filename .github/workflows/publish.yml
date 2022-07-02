@@ -34,7 +34,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: docker-artifact
-          path: save/artifact
+          path: save/artifact/build-${{ env.RELEASE_VERSION }}-amd64.tar
           retention-days: 1
   build-arm64:
     runs-on: ubuntu-latest
@@ -66,7 +66,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: docker-artifact
-          path: save/artifact
+          path: save/artifact/build-${{ env.RELEASE_VERSION }}-arm64.tar
           retention-days: 1
   upload:
     runs-on: ubuntu-latest
