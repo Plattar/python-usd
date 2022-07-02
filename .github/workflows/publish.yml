@@ -27,14 +27,14 @@ jobs:
           username: ${{ secrets.DOCKER_UPLOAD_USERNAME }}
           password: ${{ secrets.DOCKER_UPLOAD_TOKEN }}
       - name: make artifact save directory
-        run: mkdir -p save/artifact
+        run: mkdir -p /save/artifact
       - name: build & save
-        run: docker buildx build -o save/artifact/build-${{ env.RELEASE_VERSION }}-amd64.tar --platform linux/amd64 -t plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64 -f Demofile .
+        run: docker buildx build -o /save/artifact/build-${{ env.RELEASE_VERSION }}-amd64.tar --platform linux/amd64 -t plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64 -f Demofile .
       - name: cache
         uses: actions/upload-artifact@v2
         with:
           name: docker-artifact
-          path: save/artifact/build-${{ env.RELEASE_VERSION }}-amd64.tar
+          path: /save/artifact/
           retention-days: 1
   build-arm64:
     runs-on: ubuntu-latest
@@ -59,14 +59,14 @@ jobs:
           username: ${{ secrets.DOCKER_UPLOAD_USERNAME }}
           password: ${{ secrets.DOCKER_UPLOAD_TOKEN }}
       - name: make artifact save directory
-        run: mkdir -p save/artifact
+        run: mkdir -p /save/artifact
       - name: build & save
-        run: docker buildx build -o save/artifact/build-${{ env.RELEASE_VERSION }}-arm64.tar --platform linux/arm64 -t plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64 -f Demofile .
+        run: docker buildx build -o /save/artifact/build-${{ env.RELEASE_VERSION }}-arm64.tar --platform linux/arm64 -t plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64 -f Demofile .
       - name: cache
         uses: actions/upload-artifact@v2
         with:
           name: docker-artifact
-          path: save/artifact/build-${{ env.RELEASE_VERSION }}-arm64.tar
+          path: /save/artifact/
           retention-days: 1
   upload:
     runs-on: ubuntu-latest
