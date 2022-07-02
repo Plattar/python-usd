@@ -27,12 +27,12 @@ jobs:
           username: ${{ secrets.DOCKER_UPLOAD_USERNAME }}
           password: ${{ secrets.DOCKER_UPLOAD_TOKEN }}
       - name: build & save
-        run: sudo docker buildx build -o /save/artifact/build-${{ env.RELEASE_VERSION }}-amd64.tar --platform linux/amd64 -t plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64 -f Demofile .
+        run: sudo docker buildx build -o build-${{ env.RELEASE_VERSION }}-amd64.tar --platform linux/amd64 -t plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64 -f Demofile .
       - name: cache
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
-          name: docker-artifact
-          path: /save/artifact/
+          name: docker-build
+          path: build-${{ env.RELEASE_VERSION }}-amd64.tar
           retention-days: 1
   build-arm64:
     runs-on: ubuntu-latest
@@ -57,12 +57,12 @@ jobs:
           username: ${{ secrets.DOCKER_UPLOAD_USERNAME }}
           password: ${{ secrets.DOCKER_UPLOAD_TOKEN }}
       - name: build & save
-        run: sudo docker buildx build -o /save/artifact/build-${{ env.RELEASE_VERSION }}-arm64.tar --platform linux/arm64 -t plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64 -f Demofile .
+        run: sudo docker buildx build -o build-${{ env.RELEASE_VERSION }}-arm64.tar --platform linux/arm64 -t plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64 -f Demofile .
       - name: cache
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
-          name: docker-artifact
-          path: /save/artifact/
+          name: docker-build
+          path: build-${{ env.RELEASE_VERSION }}-arm64.tar
           retention-days: 1
   upload:
     runs-on: ubuntu-latest
@@ -86,17 +86,16 @@ jobs:
           username: ${{ secrets.DOCKER_UPLOAD_USERNAME }}
           password: ${{ secrets.DOCKER_UPLOAD_TOKEN }}
       - name: load cache
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: docker-artifact
-          path: save/artifact
       - name: upload linux/amd64
         run: |
-          docker load -i save/artifact/build-${{ env.RELEASE_VERSION }}-amd64.tar
+          docker load -i build-${{ env.RELEASE_VERSION }}-amd64.tar
           docker push plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64
       - name: upload linux/arm64
         run: |
-          docker load -i save/artifact/build-${{ env.RELEASE_VERSION }}-arm64.tar
+          docker load -i build-${{ env.RELEASE_VERSION }}-arm64.tar
           docker push plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64
       - name: create manifest
         run: docker manifest create plattar/python-usd:version-${{ env.RELEASE_VERSION }} plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64 plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64
