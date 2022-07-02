@@ -22,7 +22,9 @@ jobs:
       - name: print version number
         run: echo ${{ env.RELEASE_VERSION }}
       - name: build & save
-        run: sudo docker buildx build -o build-amd64.tar --platform linux/amd64 -t plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64 -f Demofile .
+        run: | 
+          sudo docker buildx build -o build-amd64.tar --platform linux/amd64 -t plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64 -f Demofile .
+          sudo chmod 777 build-amd64.tar
       - name: cache
         uses: actions/upload-artifact@v3
         with:
@@ -47,7 +49,9 @@ jobs:
       - name: print version number
         run: echo ${{ env.RELEASE_VERSION }}
       - name: build & save
-        run: sudo docker buildx build -o build-arm64.tar --platform linux/arm64 -t plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64 -f Demofile .
+        run: |
+          sudo docker buildx build -o build-arm64.tar --platform linux/arm64 -t plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64 -f Demofile .
+          sudo chmod 777 build-arm64.tar
       - name: cache
         uses: actions/upload-artifact@v3
         with:
