@@ -4,9 +4,9 @@ on:
     tags:
       - '*'
 jobs:
-  docker-build:
+  build-amd64:
     runs-on: ubuntu-latest
-    timeout-minutes: 720
+    timeout-minutes: 360
     steps:
       - name: checkout code
         uses: actions/checkout@v2
@@ -26,15 +26,87 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_UPLOAD_USERNAME }}
           password: ${{ secrets.DOCKER_UPLOAD_TOKEN }}
-      - name: build linux/amd64
-        run: docker buildx build --platform linux/amd64 -t plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64 .
-      - name: build linux/arm64
-        run: docker buildx build --platform linux/arm64 -t plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64 .
+      - name: build
+        run: |
+          docker buildx build --platform linux/amd64 -t plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64 .
+          mkdir -p save/artifact
+          docker save plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64 > save/artifact/build-${{ env.RELEASE_VERSION }}-amd64.tar
+      - name: cache
+        uses: actions/upload-artifact@v2
+        with:
+          name: docker-artifact
+          path: save/artifact
+          retention-days: 1
+  build-arm64:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v2
+      - name: setup qemu
+        uses: docker/setup-qemu-action@v2
+      - name: setup buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v2
+      - name: print available platforms
+        run: echo ${{ steps.buildx.outputs.platforms }}
+      - name: set version from tag
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      - name: print version number
+        run: echo ${{ env.RELEASE_VERSION }}
+      - name: login to dockerhub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_UPLOAD_USERNAME }}
+          password: ${{ secrets.DOCKER_UPLOAD_TOKEN }}
+      - name: build
+        run: |
+          docker buildx build --platform linux/arm64 -t plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64 .
+          mkdir -p save/artifact
+          docker save plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64 > save/artifact/build-${{ env.RELEASE_VERSION }}-arm64.tar
+      - name: cache
+        uses: actions/upload-artifact@v2
+        with:
+          name: docker-artifact
+          path: save/artifact
+          retention-days: 1
+  upload:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    needs: [build-amd64, build-arm64]
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v2
+      - name: setup buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v2
+      - name: print available platforms
+        run: echo ${{ steps.buildx.outputs.platforms }}
+      - name: set version from tag
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      - name: print version number
+        run: echo ${{ env.RELEASE_VERSION }}
+      - name: login to dockerhub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_UPLOAD_USERNAME }}
+          password: ${{ secrets.DOCKER_UPLOAD_TOKEN }}
+      - name: load cache
+        uses: actions/download-artifact@v2
+        with:
+          name: docker-artifact
+          path: save/artifact
       - name: upload linux/amd64
-        run: docker push plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64
+        run: |
+          cd save/artifact
+          docker load < build-${{ env.RELEASE_VERSION }}-amd64.tar
+          docker push plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64
       - name: upload linux/arm64
-        run: docker push plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64
+        run: |
+          cd save/artifact
+          docker load < build-${{ env.RELEASE_VERSION }}-arm64.tar
+          docker push plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64
       - name: create manifest
         run: docker manifest create plattar/python-usd:version-${{ env.RELEASE_VERSION }} plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64 plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64
       - name: upload manifest
-        run: docker manifest push  plattar/python-usd:version-${{ env.RELEASE_VERSION }}
+        run: docker manifest push plattar/python-usd:version-${{ env.RELEASE_VERSION }}
