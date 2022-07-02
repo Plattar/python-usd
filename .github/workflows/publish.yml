@@ -3,7 +3,6 @@ on:
   push:
     tags:
       - '*'
-permissions: read-all|write-all
 jobs:
   build-amd64:
     runs-on: ubuntu-latest
