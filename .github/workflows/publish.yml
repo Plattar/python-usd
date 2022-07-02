@@ -32,7 +32,7 @@ jobs:
           --push \
           --tag plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64 \
           --platform linux/amd64 \
-          --file Demofile .
+          --file Dockerfile .
   build-arm64:
     runs-on: ubuntu-latest
     timeout-minutes: 360
@@ -61,7 +61,7 @@ jobs:
           --push \
           --tag plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64 \
           --platform linux/arm64 \
-          --file Demofile .
+          --file Dockerfile .
   build-manifest:
     runs-on: ubuntu-latest
     timeout-minutes: 360
