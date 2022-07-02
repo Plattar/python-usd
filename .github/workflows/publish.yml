@@ -23,7 +23,7 @@ jobs:
         run: echo ${{ env.RELEASE_VERSION }}
       - name: build
         run: |
-          docker buildx build --output type=image --platform linux/amd64 --tag plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64 -f Demofile .
+          docker buildx build --output type=image,name=plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64 --platform linux/amd64 -f Demofile .
           docker ps -a
           docker image save -o build-amd64.tar plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64
       - name: cache
@@ -51,7 +51,7 @@ jobs:
         run: echo ${{ env.RELEASE_VERSION }}
       - name: build & save
         run: |
-          docker buildx build --output type=image --platform linux/arm64 --tag plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64 -f Demofile .
+          docker buildx build --output type=image,name=plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64 --platform linux/arm64 -f Demofile .
           docker ps -a
           docker image save -o build-arm64.tar plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64
       - name: cache
