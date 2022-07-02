@@ -27,7 +27,7 @@ jobs:
           username: ${{ secrets.DOCKER_UPLOAD_USERNAME }}
           password: ${{ secrets.DOCKER_UPLOAD_TOKEN }}
       - name: make artifact save directory
-        run: mkdir -p /save/artifact
+        run: sudo mkdir -p /save/artifact
       - name: build & save
         run: docker buildx build -o /save/artifact/build-${{ env.RELEASE_VERSION }}-amd64.tar --platform linux/amd64 -t plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64 -f Demofile .
       - name: cache
@@ -59,7 +59,7 @@ jobs:
           username: ${{ secrets.DOCKER_UPLOAD_USERNAME }}
           password: ${{ secrets.DOCKER_UPLOAD_TOKEN }}
       - name: make artifact save directory
-        run: mkdir -p /save/artifact
+        run: sudo mkdir -p /save/artifact
       - name: build & save
         run: docker buildx build -o /save/artifact/build-${{ env.RELEASE_VERSION }}-arm64.tar --platform linux/arm64 -t plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64 -f Demofile .
       - name: cache
