@@ -23,9 +23,9 @@ jobs:
         run: echo ${{ env.RELEASE_VERSION }}
       - name: build
         run: |
-          docker buildx build --platform linux/amd64 -t plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64 -f Demofile .
+          docker buildx build --platform linux/amd64 -tag plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64 -f Demofile .
           docker ps -a
-          docker image save plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64 -o build-amd64.tar
+          docker image save -o build-amd64.tar plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64
       - name: cache
         uses: actions/upload-artifact@v3
         with:
@@ -51,9 +51,9 @@ jobs:
         run: echo ${{ env.RELEASE_VERSION }}
       - name: build & save
         run: |
-          docker buildx build --platform linux/arm64 -t plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64 -f Demofile .
+          docker buildx build --platform linux/arm64 -tag plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64 -f Demofile .
           docker ps -a
-          docker image save plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64 -o build-arm64.tar
+          docker image save -o build-arm64.tar plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64
       - name: cache
         uses: actions/upload-artifact@v3
         with:
