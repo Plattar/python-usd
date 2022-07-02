@@ -87,11 +87,11 @@ jobs:
           name: docker-build
       - name: import & upload linux/amd64
         run: |
-          docker image load build-amd64.tar
+          docker image load --input build-amd64.tar
           docker push plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64
       - name: import & upload linux/arm64
         run: |
-          docker image load build-arm64.tar
+          docker image load --input build-arm64.tar
           docker push plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64
       - name: create manifest
         run: docker manifest create plattar/python-usd:version-${{ env.RELEASE_VERSION }} plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64 plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64
