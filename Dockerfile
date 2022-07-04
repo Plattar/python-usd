@@ -39,7 +39,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	# More info @ https://github.com/PixarAnimationStudios/USD
 	mkdir -p xrutils && \
 	git clone --branch "v${USD_VERSION}" --depth 1 https://github.com/PixarAnimationStudios/USD.git usdsrc && \
-	python3 usdsrc/build_scripts/build_usd.py --no-python --no-examples --no-tutorials --no-imaging --no-usdview --no-draco ${USD_BUILD_PATH} && \
+	python3 usdsrc/build_scripts/build_usd.py --no-examples --no-tutorials --no-imaging --no-usdview --no-draco ${USD_BUILD_PATH} && \
 	rm -rf usdsrc && \
 	# remove build files we no longer need to save space
 	rm -rf ${USD_BUILD_PATH}/build && \
