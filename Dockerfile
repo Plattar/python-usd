@@ -32,6 +32,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	libxcursor-dev \
 	libxinerama-dev \
 	libxi-dev && \
+	rm -rf /var/lib/apt/lists/* && \
 	# this is needed for generating usdGenSchema
 	pip3 install -U Jinja2 argparse pillow numpy && \
 	# Clone, setup and compile the Pixar USD Converter. This is required
@@ -46,4 +47,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	rm -rf ${USD_BUILD_PATH}/cmake && \
 	rm -rf ${USD_BUILD_PATH}/pxrConfig.cmake && \
 	rm -rf ${USD_BUILD_PATH}/share && \
-	rm -rf ${USD_BUILD_PATH}/src
+	rm -rf ${USD_BUILD_PATH}/src && \
+	# remove packages we no longer need/require
+	# this keeps the container as small as possible
+	# if others need them, they can install when extending
+	apt-get purge -y git \
+	build-essential \
+	cmake \
+	nasm \
+	libxrandr-dev \
+	libxinerama-dev \
+	libxi-dev && \
+	apt autoremove -y && \
+	apt-get autoclean -y
