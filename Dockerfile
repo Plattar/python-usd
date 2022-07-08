@@ -3,17 +3,13 @@
 # tools take several hours to build and are not updated very frequently.
 # PLATTAR uses this base for other open source projects such as the
 # xrutils toolchain.
-# NOTE: As of 30/06/2022 this respository also builds and sets up 
-# usdzconvert tools
 # For more info on USD tools, visit https://github.com/PixarAnimationStudios/USD
-# For more info on usdconvert, visit https://developer.apple.com/augmented-reality/tools/
-FROM python:3.7-slim-bullseye
+FROM python:3.9-slim-bullseye
 
 LABEL MAINTAINER PLATTAR(www.plattar.com)
 
 # our binary versions where applicable
 ENV USD_VERSION="22.05b"
-ENV USDZCONVERT_VERSION="0.66"
 
 # Update the environment path for Pixar USD
 ENV USD_BUILD_PATH="/usr/src/app/xrutils/usd"
@@ -23,13 +19,6 @@ ENV USD_LIB_PATH="${USD_BUILD_PATH}/lib"
 ENV PATH="${PATH}:${USD_BIN_PATH}"
 ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${USD_LIB_PATH}"
 ENV PYTHONPATH="${PYTHONPATH}:${USD_LIB_PATH}/python"
-
-# Update the environment path for USDZ Convert Tools
-ENV USDZCONVERT_BIN_PATH="/usr/src/app/xrutils/usdzconvert"
-ENV PATH="${PATH}:${USDZCONVERT_BIN_PATH}"
-
-# copy usdzconvert tools to our docker container
-COPY usdzconvert ${USDZCONVERT_BIN_PATH}
 
 WORKDIR /usr/src/app
 
@@ -51,7 +40,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	# More info @ https://github.com/PixarAnimationStudios/USD
 	mkdir -p xrutils && \
 	git clone --branch "v${USD_VERSION}" --depth 1 https://github.com/PixarAnimationStudios/USD.git usdsrc && \
-	python usdsrc/build_scripts/build_usd.py --prefer-safety-over-speed --no-examples --no-tutorials --no-imaging --no-usdview --no-draco ${USD_BUILD_PATH} && \
+	python3 usdsrc/build_scripts/build_usd.py --no-examples --no-tutorials --no-imaging --no-usdview --no-draco ${USD_BUILD_PATH} && \
 	rm -rf usdsrc && \
 	# remove build files we no longer need to save space
 	rm -rf ${USD_BUILD_PATH}/build && \

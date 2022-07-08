@@ -9,5 +9,4 @@ Looking for the _Python USD AR_ images with Apple USDZ Schema Definitions? Check
 
 This tool relies on the following open source projects.
 
--   [Pixar USD](https://github.com/PixarAnimationStudios/USD/releases/tag/v22.05b)
--   [Apple Tools](https://developer.apple.com/augmented-reality/tools/)
+-   [Pixar USD](https://github.com/PixarAnimationStudios/USD)
