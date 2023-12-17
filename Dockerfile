@@ -1,10 +1,13 @@
-# This docker container serves as a base with a compiled version
-# of Pixar USD toolchain. This is a separate container as the USD
-# tools take several hours to build and are not updated very frequently.
-# PLATTAR uses this base for other open source projects such as the
-# xrutils toolchain.
-# For more info on USD tools, visit https://github.com/PixarAnimationStudios/USD
-FROM python:3.9-slim-bullseye
+# Base Docker Image with Compiled Pixar USD Toolchain
+
+# This Docker image serves as a base with a precompiled version
+# of the Pixar USD toolchain. It is a separate image because
+# USD tools take a significant amount of time to build and
+# are not updated frequently. PLATTAR uses this base for various
+# open-source projects, including the xrutils toolchain.
+
+# For more information on USD tools, visit https://github.com/PixarAnimationStudios/USD
+FROM python:3.10-slim-bookworm
 
 LABEL MAINTAINER PLATTAR(www.plattar.com)
 

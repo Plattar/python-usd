@@ -1,3 +1,3 @@
-docker buildx create --name plattarMarcBuilder
-docker buildx use plattarMarcBuilder
-docker buildx build --push --tag plattar/python-usd:version-$1-slim-bullseye --platform linux/amd64,linux/arm64 --file Dockerfile .
+docker buildx create --name python-usd-buildx
+docker buildx use python-usd-buildx
+docker buildx build --push --tag plattar/python-usd:version-$1-slim-bookworm --platform linux/amd64,linux/arm64 --file Dockerfile .
