@@ -39,6 +39,12 @@ jobs:
     steps:
       - name: checkout code
         uses: actions/checkout@v4
+      - name: Install Colima & Docker
+        run: |
+          brew install colima
+          brew install docker
+          colima version
+          colima start --cpu 3 --memory 6 --disk 100 --vm-type=qemu --mount-type=sshfs --dns=1.1.1.1
       - name: setup qemu
         uses: docker/setup-qemu-action@v3
       - name: setup buildx
