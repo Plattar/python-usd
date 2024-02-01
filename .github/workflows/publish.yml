@@ -34,7 +34,7 @@ jobs:
           --platform linux/amd64 \
           --file Dockerfile .
   build-arm64:
-    runs-on: macos-13
+    runs-on: macos-14
     timeout-minutes: 360
     steps:
       - name: checkout code
