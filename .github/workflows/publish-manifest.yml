@@ -1,0 +1,26 @@
+name: docker publish manifest
+on:
+  workflow_run:
+    workflows: ["docker publish amd64", "docker publish arm64"]
+    types:
+      - completed
+jobs:
+  build-manifest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+      - name: set version from tag
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      - name: print version number
+        run: echo ${{ env.RELEASE_VERSION }}
+      - name: login to dockerhub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_UPLOAD_USERNAME }}
+          password: ${{ secrets.DOCKER_UPLOAD_TOKEN }}
+      - name: create manifest
+        run: docker manifest create plattar/python-usd:version-${{ env.RELEASE_VERSION }} plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64 plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64
+      - name: upload manifest
+        run: docker manifest push plattar/python-usd:version-${{ env.RELEASE_VERSION }}
