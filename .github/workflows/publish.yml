@@ -1,87 +1,181 @@
 name: docker publish
+
 on:
   push:
     tags:
       - '*'
+  workflow_dispatch:
+    inputs:
+      usd_version:
+        description: 'OpenUSD version to build (e.g. 26.05). Passed as --build-arg USD_VERSION and used to checkout v<USD_VERSION> from PixarAnimationStudios/OpenUSD.'
+        required: true
+        default: '26.05'
+        type: string
+      image_tag:
+        description: 'Image tag to publish (defaults to the OpenUSD version above).'
+        required: false
+        default: ''
+        type: string
+      tag_latest:
+        description: 'Also publish the image as :latest.'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  REGISTRY: ghcr.io
+
 jobs:
-  build-amd64:
+  setup:
     runs-on: ubuntu-latest
-    timeout-minutes: 360
+    outputs:
+      usd_version: ${{ steps.derive.outputs.usd_version }}
+      image_tag:   ${{ steps.derive.outputs.image_tag }}
+      image_name:  ${{ steps.derive.outputs.image_name }}
+      tag_latest:  ${{ steps.derive.outputs.tag_latest }}
     steps:
+      - name: derive build parameters
+        id: derive
+        run: |
+          set -euo pipefail
+
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            usd_version="${{ inputs.usd_version }}"
+            image_tag="${{ inputs.image_tag }}"
+            tag_latest="${{ inputs.tag_latest }}"
+          else
+            ref="${GITHUB_REF#refs/tags/}"
+            usd_version="${ref#v}"
+            image_tag="$ref"
+            tag_latest="true"
+          fi
+
+          if [[ -z "$image_tag" ]]; then
+            image_tag="$usd_version"
+          fi
+
+          image_name="$(echo "${{ github.repository_owner }}/python-usd" | tr '[:upper:]' '[:lower:]')"
+
+          echo "usd_version=$usd_version" >> "$GITHUB_OUTPUT"
+          echo "image_tag=$image_tag"     >> "$GITHUB_OUTPUT"
+          echo "image_name=$image_name"   >> "$GITHUB_OUTPUT"
+          echo "tag_latest=$tag_latest"   >> "$GITHUB_OUTPUT"
+
+          echo "Building OpenUSD v${usd_version} -> ${{ env.REGISTRY }}/${image_name}:${image_tag} (latest=${tag_latest})"
+
+  build:
+    needs: setup
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux/amd64
+            runner:   ubuntu-latest
+          - platform: linux/arm64
+            runner:   ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 360
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: prepare platform pair
+        run: |
+          platform="${{ matrix.platform }}"
+          echo "PLATFORM_PAIR=${platform//\//-}" >> "$GITHUB_ENV"
+
       - name: checkout code
         uses: actions/checkout@v4
-      - name: setup qemu
-        uses: docker/setup-qemu-action@v3
+
       - name: setup buildx
-        id: buildx
         uses: docker/setup-buildx-action@v3
-      - name: print available platforms
-        run: echo ${{ steps.buildx.outputs.platforms }}
-      - name: set version from tag
-        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
-      - name: print version number
-        run: echo ${{ env.RELEASE_VERSION }}
-      - name: login to dockerhub
+
+      - name: login to GHCR
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_UPLOAD_USERNAME }}
-          password: ${{ secrets.DOCKER_UPLOAD_TOKEN }}
-      - name: build & upload
-        run: |
-          docker buildx build \
-          --push \
-          --tag plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64 \
-          --platform linux/amd64 \
-          --file Dockerfile .
-  build-arm64:
-    runs-on: macos-14
-    timeout-minutes: 360
-    steps:
-      - name: checkout code
-        uses: actions/checkout@v4
-      - name: setup docker on macOS
-        uses: docker-practice/actions-setup-docker@master
-        timeout-minutes: 12
-      - name: setup qemu
-        uses: docker/setup-qemu-action@v3
-      - name: setup buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v3
-      - name: print available platforms
-        run: echo ${{ steps.buildx.outputs.platforms }}
-      - name: set version from tag
-        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
-      - name: print version number
-        run: echo ${{ env.RELEASE_VERSION }}
-      - name: login to dockerhub
-        uses: docker/login-action@v3
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: build and push by digest
+        id: build
+        uses: docker/build-push-action@v6
         with:
-          username: ${{ secrets.DOCKER_UPLOAD_USERNAME }}
-          password: ${{ secrets.DOCKER_UPLOAD_TOKEN }}
-      - name: build & upload
+          context: .
+          file: Dockerfile
+          platforms: ${{ matrix.platform }}
+          build-args: |
+            USD_VERSION=${{ needs.setup.outputs.usd_version }}
+          labels: |
+            org.opencontainers.image.title=python-usd
+            org.opencontainers.image.version=${{ needs.setup.outputs.image_tag }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+          outputs: type=image,name=${{ env.REGISTRY }}/${{ needs.setup.outputs.image_name }},push-by-digest=true,name-canonical=true,push=true
+
+      - name: export digest
         run: |
-          docker buildx build \
-          --push \
-          --tag plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64 \
-          --platform linux/arm64 \
-          --file Dockerfile .
-  build-manifest:
+          mkdir -p /tmp/digests
+          digest="${{ steps.build.outputs.digest }}"
+          touch "/tmp/digests/${digest#sha256:}"
+
+      - name: upload digest
+        uses: actions/upload-artifact@v4
+        with:
+          name: digests-${{ env.PLATFORM_PAIR }}
+          path: /tmp/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  merge:
+    needs: [setup, build]
     runs-on: ubuntu-latest
-    timeout-minutes: 360
-    needs: [build-amd64, build-arm64]
+    permissions:
+      contents: read
+      packages: write
     steps:
-      - name: checkout code
-        uses: actions/checkout@v4
-      - name: set version from tag
-        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
-      - name: print version number
-        run: echo ${{ env.RELEASE_VERSION }}
-      - name: login to dockerhub
+      - name: download digests
+        uses: actions/download-artifact@v4
+        with:
+          path: /tmp/digests
+          pattern: digests-*
+          merge-multiple: true
+
+      - name: setup buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: login to GHCR
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_UPLOAD_USERNAME }}
-          password: ${{ secrets.DOCKER_UPLOAD_TOKEN }}
-      - name: create manifest
-        run: docker manifest create plattar/python-usd:version-${{ env.RELEASE_VERSION }} plattar/python-usd:version-${{ env.RELEASE_VERSION }}-amd64 plattar/python-usd:version-${{ env.RELEASE_VERSION }}-arm64
-      - name: upload manifest
-        run: docker manifest push plattar/python-usd:version-${{ env.RELEASE_VERSION }}
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: assemble tag args
+        id: tags
+        run: |
+          set -euo pipefail
+          image="${{ env.REGISTRY }}/${{ needs.setup.outputs.image_name }}"
+          tags=("version-${{ needs.setup.outputs.image_tag }}" "${{ needs.setup.outputs.image_tag }}")
+          if [[ "${{ needs.setup.outputs.tag_latest }}" == "true" ]]; then
+            tags+=("latest")
+          fi
+          args=""
+          for t in "${tags[@]}"; do
+            args+=" -t ${image}:${t}"
+          done
+          echo "args=${args}" >> "$GITHUB_OUTPUT"
+
+      - name: create multi-arch manifest
+        working-directory: /tmp/digests
+        run: |
+          set -euo pipefail
+          image="${{ env.REGISTRY }}/${{ needs.setup.outputs.image_name }}"
+          # shellcheck disable=SC2046
+          docker buildx imagetools create ${{ steps.tags.outputs.args }} \
+            $(printf "${image}@sha256:%s " *)
+
+      - name: inspect
+        run: |
+          docker buildx imagetools inspect \
+            ${{ env.REGISTRY }}/${{ needs.setup.outputs.image_name }}:${{ needs.setup.outputs.image_tag }}

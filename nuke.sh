@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Nukes all built docker images
-docker stop plattar-usd
-docker rm -v plattar-usd
-docker rmi plattar/python-usd:latest --force
+# Nukes the local python-usd container and image
+docker stop plattar-usd 2>/dev/null || true
+docker rm -v plattar-usd 2>/dev/null || true
+docker rmi ghcr.io/plattar/python-usd:latest --force
